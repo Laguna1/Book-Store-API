@@ -1,43 +1,50 @@
 class UsersController < ApplicationController
-    def show
+    def loggin
       @user = User.where('email = ? AND password = ?', params[:email], params[:password])
-      if @user
-        render json: @user
+      if @user.length > 0
+        render json: { id: @user.first.id }
       else
         render nothing: true, status: 404
       end
     end
-    
-      def create
-        @user = User.new(user_params)
 
-        if @user.save
-        render json: @user
-        else
-        render nothing: true, status: 404
-        end
-      end
+    def show
+      @user = User.find(paramas[:id])
+      @books = @user.books.includes(:comments)
+  
+      render json: @books
+    end
     
-      def update
-        @user = User.find(params[:id])
+    def create
+      @user = User.new(user_params)
 
-        if @user.update!(user_params)
-        render json: @user
-        else
-        render nothing: true, status: 404
-        end
+      if @user.save
+      render json: @user
+      else
+      render nothing: true, status: 404
       end
-    
-      def destroy
-        @user = User.find(params[:id])
-        @user.destroy
+    end
+  
+    def update
+      @user = User.find(params[:id])
 
-        render json: { result: 'User deleted' }
+      if @user.update!(user_params)
+      render json: @user
+      else
+      render nothing: true, status: 404
       end
-    
-      private
-    
-      def user_params
-        params.permit(:email, :password)
-      end
+    end
+  
+    def destroy
+      @user = User.find(params[:id])
+      @user.destroy
+
+      render json: { result: 'User deleted' }
+    end
+  
+    private
+  
+    def user_params
+      params.permit(:email, :password)
+    end
 end
